@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>测试页面</title>
+    <!-- 引入elementui.min.css -->
+    <link rel="stylesheet" href="./libs/elementui/css/elementui.min.css">
+    <!-- 引入自定义样式 -->
+    <link rel="stylesheet" href="./styles/index.css">
+
+    <!-- 引入vue.min.js -->
+    <script src="./libs/vue/vue.min.js"></script>
+    <!-- 引入elementui.min.js -->
+    <script src="./libs/elementui/js/elementui.min.js"></script>
+</head>
+
+<body>
+    <!-- 准备dom容器 -->
+    <div id="app">
+        <!-- 右侧内容容器 -->
+        <el-container>
+            <!-- 右侧头部 -->
+            <el-header>
+                <h2>欢迎您 admin</h2>
+                <p>查看详细的系统信息</p>
+            </el-header>
+            <!-- 右侧中间主体 -->
+            <el-main>
+                <!-- 卡片整体内容部分 -->
+                <el-card class="box-card">
+                    <div slot="header" class="clearfix">
+                        <span>系统消息</span>
+                    </div>
+                    <div class="text item">
+                        <!-- 卡片内容部分 -->
+                        <el-alert title="警告提示的文案" type="warning">
+                        </el-alert>
+                        <el-alert title="错误提示的文案" type="error">
+                        </el-alert>
+                        <!-- 两个表格 -->
+                        <el-row :gutter="20">
+                            <!-- 左侧表格 -->
+                            <el-col :span="12">
+                                <div class="grid-content bg-purple">
+                                    <el-card>
+                                        <div slot="header" class="clearfix">
+                                            <span>销售排行</span>
+                                        </div>
+                                        <div class="text item">
+                                            <el-table :data="tableData" stripe style="width: 100%">
+                                                <el-table-column prop="goodsname" label="商品名称">
+                                                </el-table-column>
+                                                <el-table-column prop="sales" label="销量">
+                                                </el-table-column>
+                                            </el-table>
+                                        </div>
+                                    </el-card>
+                                </div>
+                            </el-col>
+                            <!-- 右侧表格 -->
+                            <el-col :span="12">
+                                <div class="grid-content bg-purple-light">
+                                    <el-card>
+                                        <div slot="header" class="clearfix">
+                                            <span>缺货的商品</span>
+                                        </div>
+                                        <div class="text item">
+                                            <el-table :data="tableData" stripe style="width: 100%">
+                                                <el-table-column prop="goodsname" label="商品名称">
+                                                </el-table-column>
+                                                <el-table-column prop="sales" label="销量">
+                                                </el-table-column>
+                                            </el-table>
+                                        </div>
+                                    </el-card>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </div>
+                </el-card>
+            </el-main>
+            <!-- 右侧脚部 -->
+            <el-footer>
+                <p>&copy; Copyright 2018 华联超市管理系统</p>
+            </el-footer>
+        </el-container>
+    </div>
+
+
+    <script>
+        // 创建Vue实例
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    tableData: [
+                        {
+                            goodsname: '飘柔',
+                            sales: '2,333'
+                        },
+                        {
+                            goodsname: '飘柔',
+                            sales: '2,333'
+                        },
+                        {
+                            goodsname: '飘柔',
+                            sales: '2,333'
+                        }
+                    ]
+                }
+            },
+            methods: {
+                handleOpen(key, keyPath) {
+                    console.log(key, keyPath);
+                },
+                handleClose(key, keyPath) {
+                    console.log(key, keyPath);
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

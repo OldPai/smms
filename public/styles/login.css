@@ -1,0 +1,35 @@
+html,body{
+    padding: 0;
+    margin: 0;
+    height: 100%;
+}
+#app{
+    background-image: url("../images/body_bg.png");
+    height: 100%; 
+    /* 子绝父相 */
+    position: relative;
+}
+.login-form{
+    width: 400px;
+    height: 320px;
+    background-color: #fff;
+    padding-right: 50px;
+    border-radius: 8px;
+    opacity:0.9;
+
+    /* 自觉父相 */
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+}
+.login-form .title{
+    margin-left: 40px;
+}
+
+
+.el-input__inner,.el-input{
+    height: 35px;
+}

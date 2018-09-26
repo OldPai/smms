@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>用户列表</title>
+    <!-- 引入elementui.min.css -->
+    <link rel="stylesheet" href="./libs/elementui/css/elementui.min.css">
+    <!-- 引入自定义样式 -->
+    <link rel="stylesheet" href="./styles/index.css">
+
+    <!-- 引入vue.min.js -->
+    <script src="./libs/vue/vue.min.js"></script>
+    <!-- 引入elementui.min.js -->
+    <script src="./libs/elementui/js/elementui.min.js"></script>
+</head>
+
+<body>
+    <!-- 准备dom容器 -->
+    <div id="app">
+        <!-- 页面整体容器 -->
+        <el-container>
+           
+
+            <!-- 右侧内容容器 -->
+            <el-container>
+                <!-- 右侧头部 -->
+                <el-header>
+                    <h2>欢迎您 admin</h2>
+                    <p>查看所有管理员账号</p>
+                </el-header>
+                <!-- 右侧中间主体 -->
+                <el-main>
+                    <!-- 卡片整体内容部分 -->
+                    <el-card class="box-card">
+                        <div slot="header" class="clearfix">
+                            <span>账号管理</span>
+                        </div>
+                        <div class="text item">
+                            <!-- 用户列表表格 -->
+                            <el-table ref="multipleTable" :data="tableData3" tooltip-effect="dark" style="width: 100%" @selection-change="handleSelectionChange">
+                                <!-- 选择框 -->
+                                <el-table-column type="selection" width="55">
+                                </el-table-column>
+
+                                <!-- 用户名 -->
+                                <el-table-column prop="username" label="用户名">
+                                </el-table-column>
+
+                                <!-- 用户组别 -->
+                                <el-table-column prop="group" label="用户组别" show-overflow-tooltip>
+                                </el-table-column>
+
+                                <!-- 日期 -->
+                                <el-table-column label="日期">
+                                    <template slot-scope="scope">{{ scope.row.date }}</template>
+                                </el-table-column>
+
+                                <!-- 操作 -->
+                                <el-table-column label="操作">
+                                    <template slot-scope="scope">
+                                        <el-button size="mini" type="success" @click="handleEdit(scope.$index, scope.row)">
+                                            <i class="el-icon-edit"></i>
+                                            编辑
+                                        </el-button>
+                                        <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">
+                                            <i class="el-icon-delete"></i>
+                                            删除
+                                        </el-button>
+                                    </template>
+                                </el-table-column>
+
+
+                            </el-table>
+                            <!-- <div style="margin-top: 20px">
+                                <el-button @click="toggleSelection([tableData3[1], tableData3[2]])">切换第二、第三行的选中状态</el-button>
+                                <el-button @click="toggleSelection()">取消选择</el-button>
+                            </div> -->
+
+                            <!-- 分页 -->
+                            <el-pagination background layout="prev, pager, next" :total="1000">
+                            </el-pagination>
+                        </div>
+                    </el-card>
+                </el-main>
+                <!-- 右侧脚部 -->
+                <el-footer>
+                    <p>&copy; Copyright 2018 华联超市管理系统</p>
+                </el-footer>
+            </el-container>
+        </el-container>
+    </div>
+
+
+    <script>
+        // 创建Vue实例
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    tableData3: [{
+                        username: '王小虎',
+                        group: '超级管理员',
+                        date: '2016-05-03'
+                    },
+                    {
+                        username: '王小虎',
+                        group: '超级管理员',
+                        date: '2016-05-03'
+                    },
+                    {
+                        username: '王小虎',
+                        group: '超级管理员',
+                        date: '2016-05-03'
+                    },
+                    {
+                        username: '王小虎',
+                        group: '超级管理员',
+                        date: '2016-05-03'
+                    },
+                    {
+                        username: '王小虎',
+                        group: '超级管理员',
+                        date: '2016-05-03'
+                    },
+                    {
+                        username: '王小虎',
+                        group: '超级管理员',
+                        date: '2016-05-03'
+                    }
+                    ],
+                    multipleSelection: []
+                }
+            },
+
+            methods: {
+                toggleSelection(rows) {
+                    if (rows) {
+                        rows.forEach(row => {
+                            this.$refs.multipleTable.toggleRowSelection(row);
+                        });
+                    } else {
+                        this.$refs.multipleTable.clearSelection();
+                    }
+                },
+                handleSelectionChange(val) {
+                    this.multipleSelection = val;
+                },
+
+                // 删除&编辑按钮的方法
+                handleEdit(index, row) {
+                    console.log(index, row);
+                },
+                handleDelete(index, row) {
+                    console.log(index, row);
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
