@@ -39,7 +39,7 @@ app.use(function(err, req, res, next) {
 });
 
 // 监听端口
-app.listen(2333,() => {
-  console.log('服务器启动成功...    端口号：2333')
+app.listen(2345,() => {
+  console.log('服务器启动成功...    端口号：2345')
 })
 module.exports = app;

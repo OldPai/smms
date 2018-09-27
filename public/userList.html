@@ -11,6 +11,10 @@
     <!-- 引入自定义样式 -->
     <link rel="stylesheet" href="./styles/index.css">
 
+    <!-- 引入jquery.js -->
+    <script src="./libs/jquery/jquery.js"></script>
+    <!-- 引入moment.js -->
+    <script src="./libs/moment/moment.js"></script>
     <!-- 引入vue.min.js -->
     <script src="./libs/vue/vue.min.js"></script>
     <!-- 引入elementui.min.js -->
@@ -40,7 +44,7 @@
                         </div>
                         <div class="text item">
                             <!-- 用户列表表格 -->
-                            <el-table ref="multipleTable" :data="tableData3" tooltip-effect="dark" style="width: 100%" @selection-change="handleSelectionChange">
+                            <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%" @selection-change="handleSelectionChange">
                                 <!-- 选择框 -->
                                 <el-table-column type="selection" width="55">
                                 </el-table-column>
@@ -50,12 +54,12 @@
                                 </el-table-column>
 
                                 <!-- 用户组别 -->
-                                <el-table-column prop="group" label="用户组别" show-overflow-tooltip>
+                                <el-table-column prop="groups" label="用户组别" show-overflow-tooltip>
                                 </el-table-column>
 
                                 <!-- 日期 -->
                                 <el-table-column label="日期">
-                                    <template slot-scope="scope">{{ scope.row.date }}</template>
+                                    <template slot-scope="scope">{{ scope.row.ctime | formatCtime}}</template>
                                 </el-table-column>
 
                                 <!-- 操作 -->
@@ -65,7 +69,7 @@
                                             <i class="el-icon-edit"></i>
                                             编辑
                                         </el-button>
-                                        <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">
+                                        <el-button size="mini" type="danger" @click="handleDelete(scope.row.id)">
                                             <i class="el-icon-delete"></i>
                                             删除
                                         </el-button>
@@ -75,7 +79,7 @@
 
                             </el-table>
                             <!-- <div style="margin-top: 20px">
-                                <el-button @click="toggleSelection([tableData3[1], tableData3[2]])">切换第二、第三行的选中状态</el-button>
+                                <el-button @click="toggleSelection([tableData[1], tableData[2]])">切换第二、第三行的选中状态</el-button>
                                 <el-button @click="toggleSelection()">取消选择</el-button>
                             </div> -->
 
@@ -100,42 +104,29 @@
             el: '#app',
             data() {
                 return {
-                    tableData3: [{
-                        username: '王小虎',
-                        group: '超级管理员',
-                        date: '2016-05-03'
-                    },
-                    {
-                        username: '王小虎',
-                        group: '超级管理员',
-                        date: '2016-05-03'
-                    },
-                    {
-                        username: '王小虎',
-                        group: '超级管理员',
-                        date: '2016-05-03'
-                    },
-                    {
-                        username: '王小虎',
-                        group: '超级管理员',
-                        date: '2016-05-03'
-                    },
-                    {
-                        username: '王小虎',
-                        group: '超级管理员',
-                        date: '2016-05-03'
-                    },
-                    {
-                        username: '王小虎',
-                        group: '超级管理员',
-                        date: '2016-05-03'
-                    }
-                    ],
+                    tableData: [],
                     multipleSelection: []
                 }
             },
-
+            // vue实例创建完毕  没有挂载dom vue生命周期：created  适合准备数据(发送ajax 获取数据)
+            created () {
+                // 调用一次请求所有数据的方法
+                this.getAllUsers();
+            },
             methods: {
+                // 请求所有数据的方法(函数)
+                getAllUsers () {
+                    // 保留this  让这里的this一直指向vue实例
+                    var _this = this;
+
+                    // 发送ajax请求  请求数据库里面所有的用户数据
+                    $.get('./users/userList',function (data) {
+                        // console.log(data);
+                        _this.tableData = data;
+                    })
+                },
+
+                // 表单选择函数
                 toggleSelection(rows) {
                     if (rows) {
                         rows.forEach(row => {
@@ -149,12 +140,37 @@
                     this.multipleSelection = val;
                 },
 
-                // 删除&编辑按钮的方法
+                // 编辑按钮的方法
                 handleEdit(index, row) {
                     console.log(index, row);
                 },
-                handleDelete(index, row) {
-                    console.log(index, row);
+                // 删除按钮的方法
+                handleDelete(id) {
+                    // console.log(id);
+
+                    // 保留this指向
+                    var _this = this;
+
+                    // 发送单条删除的请求
+                    $.get(`/users/userDelOne?id=${id}`, function (data) {
+                        // 判断：如果删除成功 弹出删除成功 并刷新页面
+                        if (data.errcode === 1) {
+                            // 弹出删除成功的信息 data.msg
+                            alert(data.msg);
+                            // 刷新页面 ： 通过重新发送一次ajax，就是一次get请求，就能刷新页面
+                            _this.getAllUsers();
+                        } else {
+                            // 否则  就是删除失败    弹出删除失败的信息  data.msg
+                            alert(data.msg);
+                        }
+                    })
+
+                }
+            },
+            filters : {
+                // 过滤时间
+                formatCtime (value) {
+                    return moment(value).format("YYYY-MM-DD HH:mm:ss");
                 }
             }
         })
