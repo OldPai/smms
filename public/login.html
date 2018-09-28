@@ -11,6 +11,8 @@
     <!-- 引入自定义样式 -->
     <link rel="stylesheet" href="./styles/login.css">
 
+    <!-- 引入jquert.js -->
+    <script src="./libs/jquery/jquery.js"></script>
     <!-- 引入vue.min.js -->
     <script src="./libs/vue/vue.min.js"></script>
     <!-- 引入elementui.min.js -->
@@ -92,8 +94,23 @@
                     this.$refs[formName].validate((valid) => {
                         // 如果验证通过 valid就是true 否则 就是false
                         if (valid) {
-                            // 验证通过 允许把用户名和密码 发送给后端 (需要写ajax)
-                            alert('验证通过!'+ ', 用户名是：' + this.loginForm.username + ',密码是:' + this.loginForm.password);
+                            // 收集用户输入的用户名和密码
+                            let userInfo = {
+                                username: this.loginForm.username,
+                                password: this.loginForm.password
+                            };
+                            // 发送ajax请求给后台：把用户名和密码发给后台
+                            $.post('/users/checkLogin', userInfo, function (data) {
+                                // console.log(data);
+                                // 判断：如果存在，弹出成功提示，并跳转到后台首页
+                                if (data.errcod === 1) {
+                                    alert(data.msg);
+                                    location.href = './index.html'
+                                } else {
+                                    // 否则 弹出失败提示
+                                    alert(data.msg);
+                                }
+                            })
                         } else {
                             // 前端验证不通过 不允许提交
                             console.log('验证失败！！！');

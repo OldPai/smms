@@ -26,7 +26,7 @@
     <div id="app">
         <!-- 页面整体容器 -->
         <el-container>
-           
+
 
             <!-- 右侧内容容器 -->
             <el-container>
@@ -44,7 +44,8 @@
                         </div>
                         <div class="text item">
                             <!-- 用户列表表格 -->
-                            <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%" @selection-change="handleSelectionChange">
+                            <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%"
+                                @selection-change="handleSelectionChange">
                                 <!-- 选择框 -->
                                 <el-table-column type="selection" width="55">
                                 </el-table-column>
@@ -65,7 +66,7 @@
                                 <!-- 操作 -->
                                 <el-table-column label="操作">
                                     <template slot-scope="scope">
-                                        <el-button size="mini" type="success" @click="handleEdit(scope.$index, scope.row)">
+                                        <el-button size="mini" type="success" @click="handleEdit(scope.row.id)">
                                             <i class="el-icon-edit"></i>
                                             编辑
                                         </el-button>
@@ -78,10 +79,10 @@
 
 
                             </el-table>
-                            <!-- <div style="margin-top: 20px">
-                                <el-button @click="toggleSelection([tableData[1], tableData[2]])">切换第二、第三行的选中状态</el-button>
-                                <el-button @click="toggleSelection()">取消选择</el-button>
-                            </div> -->
+                            <div style="margin-top: 20px; text-align: left">
+                                <el-button @click="batchesDel()">删除选中</el-button>
+                                <el-button @click="deselectall()">取消选择</el-button>
+                            </div>
 
                             <!-- 分页 -->
                             <el-pagination background layout="prev, pager, next" :total="1000">
@@ -109,42 +110,78 @@
                 }
             },
             // vue实例创建完毕  没有挂载dom vue生命周期：created  适合准备数据(发送ajax 获取数据)
-            created () {
+            created() {
                 // 调用一次请求所有数据的方法
                 this.getAllUsers();
             },
             methods: {
                 // 请求所有数据的方法(函数)
-                getAllUsers () {
+                getAllUsers() {
                     // 保留this  让这里的this一直指向vue实例
                     var _this = this;
 
                     // 发送ajax请求  请求数据库里面所有的用户数据
-                    $.get('./users/userList',function (data) {
+                    $.get('./users/userList', function (data) {
                         // console.log(data);
                         _this.tableData = data;
                     })
                 },
 
-                // 表单选择函数
-                toggleSelection(rows) {
-                    if (rows) {
-                        rows.forEach(row => {
-                            this.$refs.multipleTable.toggleRowSelection(row);
-                        });
-                    } else {
-                        this.$refs.multipleTable.clearSelection();
+                // 批量删除按钮的函数
+                batchesDel() {
+                    // 保留this指向
+                    var _this = this;
+
+                    // 获取勾选的数据
+                    // console.log('勾选的数据：',this.multipleSelection);
+                    
+                    // 从勾选的数里面 获取id:把id循环出来--(map循环）
+                    let idArr = this.multipleSelection.map(v => v.id);
+                    // console.log(idArr);
+
+                    // 如果用户没有选中 点击删除  服务器会出问题
+                    // 解决方法:  判断选中的数据的id组成的数组是否有长度（有长度表示选中的有数据）
+                    if (!idArr.length) {
+                        alert('请选择需要删除的数据后再操作...');
+                        // 直接返回  不执行后面的代码
+                        return false;
                     }
+
+                    // 发送ajax请求  把这些id发送给后台
+                    $.post('/users/batchesDel', {"idArr":idArr}, function (data) {
+                        // console.log(data);
+                        
+                        // 根据后台响应回来的数据判断是否删除成功
+                        if (data.errcode === 1) {
+                            // 如果成功 弹出成功提示
+                            alert(data.msg)
+                            // 刷新页面（重新请求一次所有数据 就是发送一次get请求 也就是刷新页面）
+                            _this.getAllUsers();
+                        } else {
+                            // 否则 弹出错误提示
+                            alert(data.msg);
+                        }
+                    });
                 },
+                // 取消选择按钮的函数
+                deselectall() {
+                    this.$refs.multipleTable.clearSelection();
+                },
+
+                // 勾选触发的函数
                 handleSelectionChange(val) {
+                    // 把勾选中的数据 赋值给 multipleSelection
                     this.multipleSelection = val;
                 },
 
-                // 编辑按钮的方法
-                handleEdit(index, row) {
-                    console.log(index, row);
+                // 编辑（修改）按钮的方法
+                handleEdit(id) {
+                    // console.log(id);
+                    // 跳转到修改页面  把id传过去
+                    location.href = `./userEdit.html?id=${id}`
                 },
-                // 删除按钮的方法
+
+                // 单条删除按钮的方法
                 handleDelete(id) {
                     // console.log(id);
 
@@ -164,12 +201,11 @@
                             alert(data.msg);
                         }
                     })
-
                 }
             },
-            filters : {
+            filters: {
                 // 过滤时间
-                formatCtime (value) {
+                formatCtime(value) {
                     return moment(value).format("YYYY-MM-DD HH:mm:ss");
                 }
             }
