@@ -29,8 +29,9 @@ router.post('/checkLogin', (req, res) => {
         console.log(data);
         // 登录成功，设置cookie (在res.send()之前设置)
         res.cookie('username', data[0].username);
-        res.cookie('password', data[0].password);
+        // res.cookie('password', data[0].password);
         res.cookie('groups', data[0].groups);
+        res.cookie('userId', data[0].id);
 
         // 返回成功的数据对象
         res.send({'errcod':1,'msg':'登录成功！！！'});
@@ -62,14 +63,70 @@ router.get('/checkIsLogin', (req, res) => {
 router.get('/logout', (req, res) => {
   // 清除浏览器cookie
   res.clearCookie('username');
-  res.clearCookie('password');
+  // res.clearCookie('password');
   res.clearCookie('groups');
+  res.clearCookie('userId');
 
   // 弹出对应提示  跳转到登录页面
   res.send('<script>alert("退出成功！！！"); location.href="http://localhost:2345/login.html"</script>');
 });
-/*  */
-/*  */
+
+
+
+/* 验证旧密码是否正确 */
+router.get('/checkoldpwd', (req, res) => {
+  // 接收前端发送过来的旧密码
+  let { oldPwd } = req.query;
+
+  // 从cookie里面拿到id
+  let id = req.cookies.userId;
+  // 构造sql语句
+  let sqlStr = `select * from users where id=${id}`;
+  // console.log(sqlStr);
+  // 执行sql语句
+  connection.query(sqlStr, (err, data) => {
+    if (err) {
+      throw err;
+    } else {
+      // console.log('接收到的数据：',data);
+      // console.log('密码：',data[0].password);
+
+      // 判断前端发送过来的密码是否与旧密码相同   
+      if (oldPwd === data[0].password) {
+        res.send({'errcode':1,'msg':'旧密码输入正确！！'});
+      } else {
+        res.send({'errcode':0, 'msg':'旧密码输入错误！！'});
+      }
+    }
+  });
+});
+
+/* 接收修改新密码的请求并保存 */
+router.post('/savenewpwd', (req, res ) => {
+  // 接收前端发送过来修改的新密码
+  let { newPwd } = req.body;
+  // 从cookie获取id
+  let id = req.cookies.userId;
+
+  // 构造sql语句(根据id查找数据，修改密码)
+  const sqlStr = `update users set password='${newPwd}' where id=${id}`;
+  console.log(sqlStr);
+  // 执行构造的sql语句 ：修改密码
+  connection.query(sqlStr, (err, data) => {
+    if (err) {
+      // 如果有错  抛出错误
+      throw err;
+    } else {
+      // 如果成功  清除cookie
+      res.clearCookie('username');
+      res.clearCookie('userId');
+      res.clearCookie('groups');
+
+      // 发送数据给前端
+      res.send({'errcode':1,'msg':'密码修改成功！'});
+    }
+  });
+});
 /*  */
 /*  */
 /* 接收添加用户账号的请求 */
@@ -105,16 +162,36 @@ router.post('/userAdd', (req, res) => {
 
 /* 接收显示所有用户账号数据的请求 */
 router.get('/userList', (req, res) => {
+  // 接收前端发送过来的参数 pageSize  currentPage
+  let { pageSize, currentPage } = req.query;
+  // console.log('从前端接收到的数据：',pageSize, currentPage);
+
   // 构造sql语句(查询所有用户账号)
-  const sqlStr = 'select * from users order by ctime desc';
+  let sqlStr = 'select * from users';
 
   // 后台执行构造的sql语句(查询所有用户账号数据)
   connection.query(sqlStr, (err, data) => {
     // 如果有错，抛出错误
     if (err) {
       throw err;
-    } else {  // 否则  直接把查询的所有数据  响应给前端
-      res.send(data);
+    } else {  
+      // 计算数据总条数
+      let totalcount = data.length;
+      // 计算每页跳过多少条
+      let n = (currentPage - 1)*pageSize;
+
+      // 构造sql语句  按条件查询  对应页码的数据
+      sqlStr += ` order by ctime desc limit ${n}, ${pageSize}`;
+      console.log('构造的sql语句：',sqlStr);
+      // 执行sql语句
+      connection.query(sqlStr, (err, data) => {
+        if (err) {
+          throw err;
+        } else {
+          // 把数据的总条数 和 当前页码对应的数据 一起发送给前端
+          res.send({'totalcount':totalcount,'pageData':data});
+        }
+      });
     }
   });
 });

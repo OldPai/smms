@@ -24,7 +24,8 @@
         <i class="el-icon-edit"></i>
         <i class="el-icon-share"></i>
         <i class="el-icon-delete"></i>
-        <el-button type="primary" icon="el-icon-search">搜索</el-button><hr />
+        <el-button type="primary" icon="el-icon-search">搜索</el-button>
+        <hr />
         <el-row>
             <el-button>默认按钮</el-button>
             <el-button type="primary">主要按钮</el-button>
@@ -33,6 +34,12 @@
             <el-button type="warning">警告按钮</el-button>
             <el-button type="danger">危险按钮</el-button>
         </el-row>
+        <br>
+        <template>
+            <el-button class="el-icon-delete" type="danger" @click="open2">删除</el-button>
+            <el-button size="small" class="el-icon-delete" type="danger" @click="open2">删除</el-button>
+            <el-button size="mini" class="el-icon-delete" type="danger" @click="open2">删除</el-button>        
+        </template>
     </div>
 
 
@@ -40,7 +47,26 @@
         // 创建Vue实例
         new Vue({
             el: '#app',
-            data: {}
+            data: {},
+            methods: {
+                open2() {
+                    this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'warning'
+                    }).then(() => {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '已取消删除'
+                        });
+                    });
+                }
+            }
         })
     </script>
 </body>

@@ -19,6 +19,8 @@
     <script src="./libs/vue/vue.min.js"></script>
     <!-- 引入elementui.min.js -->
     <script src="./libs/elementui/js/elementui.min.js"></script>
+    <!-- 检测是否登录 -->
+    <script src="/users/checkIsLogin"></script>
 </head>
 
 <body>
@@ -84,9 +86,19 @@
                                 <el-button @click="deselectall()">取消选择</el-button>
                             </div>
 
-                            <!-- 分页 -->
-                            <el-pagination background layout="prev, pager, next" :total="1000">
-                            </el-pagination>
+                            <!-- 分页组件 -->
+                            <div style="margin-top: 20px;">
+                                <el-pagination
+                                    @size-change="handleSizeChange"
+                                    @current-change="handleCurrentChange"
+                                    :current-page="currentPage"
+                                    :page-sizes="[5, 8, 10, 20, 50]" 
+                                    :page-size="pageSize"
+                                    layout="total, sizes, prev, pager, next, jumper" 
+                                    :total="totalcount">
+                                </el-pagination>
+                            </div>
+
                         </div>
                     </el-card>
                 </el-main>
@@ -106,7 +118,10 @@
             data() {
                 return {
                     tableData: [],
-                    multipleSelection: []
+                    multipleSelection: [],
+                    currentPage: 1,
+                    pageSize:5,
+                    totalcount:''
                 }
             },
             // vue实例创建完毕  没有挂载dom vue生命周期：created  适合准备数据(发送ajax 获取数据)
@@ -115,15 +130,39 @@
                 this.getAllUsers();
             },
             methods: {
+                // 分页
+                // 当页面尺寸(每页显示多少条) 发生改变触发
+                handleSizeChange(val) {
+                    // 尺寸改变  把尺寸赋值给pigeSize
+                    this.pageSize = val;
+                    this.getAllUsers();
+                },
+                // 当前页码发生改变触发
+                handleCurrentChange(val) {
+                    // 当前页改变  就把当前页的页码赋值给 currentPage
+                    this.currentPage = val;
+                    this.getAllUsers();
+                },
+
                 // 请求所有数据的方法(函数)
                 getAllUsers() {
                     // 保留this  让这里的this一直指向vue实例
                     var _this = this;
 
+                    // 分页需要传给后端的参数：当前页码、页面尺寸
+                    const params = {
+                        pageSize: this.pageSize,
+                        currentPage: this.currentPage
+                    }
+
                     // 发送ajax请求  请求数据库里面所有的用户数据
-                    $.get('./users/userList', function (data) {
-                        // console.log(data);
-                        _this.tableData = data;
+                    $.get('./users/userList', params, function (data) {
+                        // console.log('接收到后端返回的数据对象：', data);
+
+                        // 把后端发送过来的数据总条数赋值给  totalcount
+                        _this.totalcount = data.totalcount;
+                        // 把对应页码的数据 赋值给 tableData
+                        _this.tableData = data.pageData;
                     })
                 },
 
@@ -134,7 +173,7 @@
 
                     // 获取勾选的数据
                     // console.log('勾选的数据：',this.multipleSelection);
-                    
+
                     // 从勾选的数里面 获取id:把id循环出来--(map循环）
                     let idArr = this.multipleSelection.map(v => v.id);
                     // console.log(idArr);
@@ -148,9 +187,9 @@
                     }
 
                     // 发送ajax请求  把这些id发送给后台
-                    $.post('/users/batchesDel', {"idArr":idArr}, function (data) {
+                    $.post('/users/batchesDel', { "idArr": idArr }, function (data) {
                         // console.log(data);
-                        
+
                         // 根据后台响应回来的数据判断是否删除成功
                         if (data.errcode === 1) {
                             // 如果成功 弹出成功提示
