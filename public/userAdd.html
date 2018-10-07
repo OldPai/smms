@@ -32,7 +32,7 @@
             <el-container>
                 <!-- 右侧头部 -->
                 <el-header>
-                    <h2>欢迎您 admin</h2>
+                    <h2>欢迎您 {{username}}</h2>
                     <p>添加管理员账号</p>
                 </el-header>
                 <!-- 右侧中间主体 -->
@@ -108,6 +108,7 @@
                     }
                 }
                 return {
+                    username:'',
                     // 表单需要的数据源
                     loginForm: {
                         username: '',   // 用户名
@@ -137,6 +138,16 @@
                         ]
                     }
                 };
+            },
+            created() {
+                // 保留this指向
+                let _this = this;
+
+                // 进入页面 在生命周期里面 发送请求 自动获取当前登录用户的用户名
+                $.get('/users/getusername', function (data) {
+                    // console.log(data);
+                    _this.username = data;
+                });
             },
             methods: {
                 // 提交表单

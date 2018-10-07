@@ -35,7 +35,7 @@
                     <h2>华联超市管理系统</h2>
                     <p>
                         你好，
-                        <span>admin</span>
+                        <span>{{username}}</span>
                     </p>
                     <p>
                         <a href="./main.html" target="contentWrap">管理首页</a>&nbsp;|&nbsp;
@@ -59,8 +59,8 @@
                             <i class="el-icon-goods"></i>商品管理
                         </template>
                         <el-menu-item-group>
-                            <el-menu-item index="2-1">商品管理</el-menu-item>
-                            <el-menu-item index="2-2">添加商品</el-menu-item>
+                            <el-menu-item index="2-1"><a href="./goodsList.html" target="contentWrap">商品管理</a></el-menu-item>
+                            <el-menu-item index="2-2"><a href="./goodsAdd.html" target="contentWrap">添加商品</a></el-menu-item>
                         </el-menu-item-group>
                     </el-submenu>
                     <el-submenu index="3">
@@ -103,7 +103,7 @@
                                 <a href="./userAdd.html" target="contentWrap">添加账号</a>
                             </el-menu-item>
                             <el-menu-item index="6-3">
-                                    <a href="./pwdEdit.html" target="contentWrap">密码修改</a>
+                                <a href="./pwdEdit.html" target="contentWrap">密码修改</a>
                             </el-menu-item>
                         </el-menu-item-group>
                     </el-submenu>
@@ -141,7 +141,20 @@
     <script>
         // 创建Vue实例
         new Vue({
-            el: '#app'
+            el: '#app',
+            data: {
+                username: ''
+            },
+            created() {
+                // 保留this指向
+                let _this = this;
+
+                // 进入页面 在生命周期里面 发送请求 自动获取当前登录用户的用户名
+                $.get('/users/getusername', function (data) {
+                    // console.log(data);
+                    _this.username = data;
+                });
+            }
         })
     </script>
 </body>

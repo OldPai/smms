@@ -182,3 +182,7 @@ html,body{
 .el-pagination{
     margin-top: 30px;
 }
+
+.addUserForm {
+    width: 300px;
+}

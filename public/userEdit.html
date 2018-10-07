@@ -31,7 +31,7 @@
             <el-container>
                 <!-- 右侧头部 -->
                 <el-header>
-                    <h2>欢迎您 admin</h2>
+                    <h2>欢迎您 {{username}}</h2>
                     <p>修改用户账号</p>
                 </el-header>
                 <!-- 右侧中间主体 -->
@@ -107,6 +107,7 @@
                     }
                 }
                 return {
+                    username:'',
                     // 表单需要的数据源
                     editForm: {
                         username: '',   // 用户名
@@ -155,6 +156,12 @@
                     _this.editForm.username = data[0].username; 
                     _this.editForm.password = data[0].password; 
                     _this.editForm.groups = data[0].groups; 
+                });
+
+                // 进入页面 在生命周期里面 发送请求 自动获取当前登录用户的用户名
+                $.get('/users/getusername', function (data) {
+                    // console.log(data);
+                    _this.username = data;
                 });
             },
             methods: {

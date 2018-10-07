@@ -9,6 +9,13 @@ connection.connect(() => {
   console.log('与数据库admin连接成功...')
 });
 
+/* 获取当前登录的用户名 */
+router.get('/getusername',(req, res) => {
+  // 获取当前登录的用户名(从cookie里面获取)
+  let username = req.cookies.username;
+  // 把用户名发送给前端
+  res.send(username);
+})
 
 /* 登录请求：检查用户名和密码是否正确 */
 router.post('/checkLogin', (req, res) => {

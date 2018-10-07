@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>用户列表</title>
+    <title>商品列表</title>
     <!-- 引入elementui.min.css -->
     <link rel="stylesheet" href="./libs/elementui/css/elementui.min.css">
     <!-- 引入自定义样式 -->
@@ -35,7 +35,7 @@
                 <!-- 右侧头部 -->
                 <el-header>
                     <h2>欢迎您 {{username}}</h2>
-                    <p>查看所有管理员账号</p>
+                    <p>商品管理</p>
                 </el-header>
                 <!-- 右侧中间主体 -->
                 <el-main>
@@ -45,42 +45,66 @@
                             <span>账号管理</span>
                         </div>
                         <div class="text item">
-                            <!-- 用户列表表格 -->
+                            <!-- 搜索表单 -->
+                            <div style="text-align: left">
+                                <el-form :inline="true" :model="searchForm" class="demo-form-inline">
+                                    <!-- 分类 -->
+                                    <el-form-item label="分类名称">
+                                        <el-select v-model="searchForm.searchCateName" placeholder="请选择分类">
+                                            <el-option label="全部" value="全部"></el-option>
+                                            <el-option label="酒水类" value="酒水类"></el-option>
+                                            <el-option label="食品类" value="食品类"></el-option>
+                                            <el-option label="日用品" value="日用品"></el-option>
+                                            <el-option label="电子类" value="电子类"></el-option>
+                                            <el-option label="服装类" value="服装类"></el-option>
+                                        </el-select>
+                                    </el-form-item>
+                                    <!-- 关键字 -->
+                                    <el-form-item label="关键字">
+                                        <el-input v-model="searchForm.searchKeyWord" placeholder="商品名称或条形码"></el-input>
+                                    </el-form-item>
+                                    <el-form-item>
+                                        <el-button type="primary" @click="search">查询</el-button>
+                                    </el-form-item>
+                                </el-form>
+                            </div>
+                            <!-- 商品列表表格 -->
                             <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%"
                                 @selection-change="handleSelectionChange">
                                 <!-- 选择框 -->
-                                <el-table-column type="selection" width="55">
+                                <el-table-column type="selection">
                                 </el-table-column>
 
-                                <!-- 用户名 -->
-                                <el-table-column prop="username" label="用户名">
+                                <el-table-column prop="barCode" label="条形码">
                                 </el-table-column>
-
-                                <!-- 用户组别 -->
-                                <el-table-column prop="groups" label="用户组别" show-overflow-tooltip>
+                                <el-table-column prop="goodsName" label="商品名称">
+                                </el-table-column>
+                                <el-table-column prop="cateName" label="所属分类">
+                                </el-table-column>
+                                <el-table-column prop="salePrice" label="售价">
+                                </el-table-column>
+                                <el-table-column prop="promotion" label="促销">
                                 </el-table-column>
 
                                 <!-- 日期 -->
                                 <el-table-column label="日期">
-                                    <template slot-scope="scope">{{ scope.row.ctime | formatCtime}}</template>
+                                    <template slot-scope="scope">{{ scope.row.ctime | formatCtime }}</template>
                                 </el-table-column>
-
                                 <!-- 操作 -->
                                 <el-table-column label="操作">
                                     <template slot-scope="scope">
-                                        <el-button size="mini" type="success" @click="handleEdit(scope.row.id)">
+                                        <el-button size="mini" type="primary" @click="handleEdit(scope.row.id)">
                                             <i class="el-icon-edit"></i>
-                                            编辑
                                         </el-button>
                                         <el-button size="mini" type="danger" @click="handleDelete(scope.row.id)">
                                             <i class="el-icon-delete"></i>
-                                            删除
                                         </el-button>
                                     </template>
                                 </el-table-column>
 
-
                             </el-table>
+
+
                             <div style="margin-top: 20px; text-align: left">
                                 <el-button type="warning" @click="batchesDel()">删除选中</el-button>
                                 <el-button type="info" @click="deselectall()">取消选择</el-button>
@@ -112,6 +136,11 @@
             el: '#app',
             data() {
                 return {
+                    // 查询表单的数据
+                    searchForm: {
+                        searchCateName: '',
+                        searchKeyWord: ''
+                    },
                     username: '',
                     tableData: [],
                     multipleSelection: [],
@@ -133,6 +162,27 @@
                 });
             },
             methods: {
+                // 查询函数
+                search() {
+                    // 保留this
+                    /* let _this = this;
+                    // 获取用户输入的查询 分类名 和 关键字
+                    let params = {
+                        "searchCateName": this.searchForm.searchCateName,
+                        "searchKeyWord": this.searchForm.searchKeyWord
+                    }
+
+                    // 发送ajax 把查询参数发送给后端 
+                    $.get('/goods/search', params, function (data) {
+                        // console.log(data);
+                        // 把查询结果 赋值给tableData 渲染表格
+                        _this.tableData = data;
+                    }) */
+                    this.getAllUsers();
+                },
+
+
+
                 // 分页
                 // 当页面尺寸(每页显示多少条) 发生改变触发
                 handleSizeChange(val) {
@@ -155,11 +205,13 @@
                     // 分页需要传给后端的参数：当前页码、页面尺寸
                     const params = {
                         pageSize: this.pageSize,
-                        currentPage: this.currentPage
+                        currentPage: this.currentPage,
+                        "searchCateName": this.searchForm.searchCateName,
+                        "searchKeyWord": this.searchForm.searchKeyWord
                     }
 
                     // 发送ajax请求  请求数据库里面所有的用户数据
-                    $.get('./users/userList', params, function (data) {
+                    $.get('./goods/goodsList', params, function (data) {
                         // console.log('接收到后端返回的数据对象：', data);
 
                         // 判断  如果当前页没有数据
@@ -217,7 +269,7 @@
                         type: 'warning'
                     }).then(() => {
                         // 发送ajax请求  把这些id发送给后台
-                        $.post('/users/batchesDel', { "idArr": idArr }, function (data) {
+                        $.post('/goods/batchesDel', { "idArr": idArr }, function (data) {
                             // console.log(data);
 
                             // 根据后台响应回来的数据判断是否删除成功
@@ -254,7 +306,7 @@
                 handleEdit(id) {
                     // console.log(id);
                     // 跳转到修改页面  把id传过去
-                    location.href = `./userEdit.html?id=${id}`
+                    location.href = `./goodsEdit.html?id=${id}`
                 },
 
                 // 单条删除按钮的方法
@@ -270,7 +322,7 @@
                         type: 'warning'
                     }).then(() => {
                         // 发送单条删除的请求
-                        $.get(`/users/userDelOne?id=${id}`, function (data) {
+                        $.get(`/goods/goodsDelOne?id=${id}`, function (data) {
                             // 判断：如果删除成功 弹出删除成功 并刷新页面
                             if (data.errcode === 1) {
                                 _this.$message({

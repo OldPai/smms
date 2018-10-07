@@ -11,6 +11,8 @@
     <!-- 引入自定义样式 -->
     <link rel="stylesheet" href="./styles/index.css">
 
+    <!-- 引入jquery.js -->
+    <script src="./libs/jquery/jquery.js"></script>
     <!-- 引入vue.min.js -->
     <script src="./libs/vue/vue.min.js"></script>
     <!-- 引入elementui.min.js -->
@@ -24,7 +26,7 @@
         <el-container>
             <!-- 右侧头部 -->
             <el-header>
-                <h2>欢迎您 admin</h2>
+                <h2>欢迎您 {{username}}</h2>
                 <p>查看详细的系统信息</p>
             </el-header>
             <!-- 右侧中间主体 -->
@@ -109,8 +111,19 @@
                             goodsname: '飘柔',
                             sales: '2,333'
                         }
-                    ]
+                    ],
+                    username:''
                 }
+            },
+            created() {
+                // 保留this指向
+                let _this = this;
+
+                // 进入页面 在生命周期里面 发送请求 自动获取当前登录用户的用户名
+                $.get('/users/getusername', function (data) {
+                    // console.log(data);
+                    _this.username = data;
+                });
             },
             methods: {
                 handleOpen(key, keyPath) {
